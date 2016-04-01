@@ -1,15 +1,17 @@
 package com.clanout.apiserver.endpoints;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import com.clanout.apiserver.endpoints._core.AbstractEndpoint;
+
+import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 
 @Path("health_check")
-public class HealthEndpoint
+public class HealthEndpoint extends AbstractEndpoint
 {
     @GET
-    public Response healthCheck()
+    public void healthCheck(@Suspended AsyncResponse response)
     {
-        return Response.ok("Hello, World!").build();
+        workers.execute(() -> response.resume("Hello, World!"));
     }
 }

@@ -1,7 +1,11 @@
-package com.clanout.apiserver.core;
+package com.clanout.apiserver._core;
 
 
 import com.clanout.apiserver.endpoints.HealthEndpoint;
+import com.clanout.apiserver.logging.RequestLogger;
+import com.clanout.apiserver.logging.ResponseLogger;
+import com.clanout.apiserver.request.RequestReader;
+import com.clanout.apiserver.request.SessionRequestReader;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -19,6 +23,14 @@ public class ClanoutApiServer extends Application
     public Set<Class<?>> getClasses()
     {
         Set<Class<?>> resources = new HashSet<>();
+
+        /* Logger */
+        resources.add(RequestLogger.class);
+        resources.add(ResponseLogger.class);
+
+        /* Request Parsers */
+        resources.add(RequestReader.class);
+        resources.add(SessionRequestReader.class);
 
         /* Endpoints */
         resources.add(HealthEndpoint.class);

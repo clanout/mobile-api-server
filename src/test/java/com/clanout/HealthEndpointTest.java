@@ -21,7 +21,7 @@ public class HealthEndpointTest
     public void setUp() throws Exception
     {
         // start the server
-        server = Server.startServer();
+        server = Server.startHttpServer();
         // create the client
         Client c = ClientBuilder.newClient();
 
