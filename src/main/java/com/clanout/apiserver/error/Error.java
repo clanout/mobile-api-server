@@ -22,7 +22,9 @@ public enum Error
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, 1004, "Invalid refresh token"),
     SESSION_REFRESH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Session refresh failed"),
 
-    INVALID_INPUT_FIELDS(HttpStatus.BAD_REQUEST, 1006, "Invalid input fields")
+    INVALID_INPUT_FIELDS(HttpStatus.BAD_REQUEST, 1006, "Invalid input fields"),
+
+    NO_PROFILE_IMAGE(HttpStatus.NOT_FOUND, 1007, "No profile pic")
     ;
 
     @SerializedName("status")

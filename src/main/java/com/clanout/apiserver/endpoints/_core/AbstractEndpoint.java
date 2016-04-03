@@ -6,6 +6,8 @@ import com.clanout.application.core.ApplicationContext;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 
 public class AbstractEndpoint
@@ -27,5 +29,17 @@ public class AbstractEndpoint
     protected Response buildEmptySuccessResponse()
     {
         return Response.ok().build();
+    }
+
+    protected Response redirect(String url)
+    {
+        try
+        {
+            return Response.seeOther(new URI(url)).build();
+        }
+        catch (URISyntaxException e)
+        {
+            return Response.serverError().build();
+        }
     }
 }
