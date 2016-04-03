@@ -21,6 +21,13 @@
     </properties>
 
     <dependencies>
+        <!-- Clanout Application -->
+        <dependency>
+            <groupId>com.clanout.application</groupId>
+            <artifactId>core</artifactId>
+            <version>${clanout.version}</version>
+        </dependency>
+
         <!-- HTTP Container -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>

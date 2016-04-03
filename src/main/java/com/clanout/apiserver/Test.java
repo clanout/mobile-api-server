@@ -1,12 +1,23 @@
 package com.clanout.apiserver;
 
+import com.clanout.apiserver.error.*;
+import com.clanout.apiserver.error.Error;
+import com.clanout.apiserver.util.GsonProvider;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.commons.codec.binary.Base64;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.UUID;
 
 public class Test
 {
@@ -17,7 +28,7 @@ public class Test
         String keyStr = "Tomriddlediary";
         Key key = generateKeyFromString(keyStr);
         System.out.println("Key = " + new String(key.getEncoded()));
-        String value = "Hello, World!";
+        String value = UUID.randomUUID().toString() + "|" + OffsetDateTime.now().toString();
 
         long startTime;
         long endTime;
@@ -49,7 +60,7 @@ public class Test
             final Cipher c = Cipher.getInstance(ALGORITHM);
             c.init(Cipher.ENCRYPT_MODE, key);
             final byte[] encValue = c.doFinal(valueEnc.getBytes());
-            encryptedValue = new BASE64Encoder().encode(encValue);
+            encryptedValue = Base64.encodeBase64URLSafeString(encValue);
         }
         catch (Exception ex)
         {
@@ -68,7 +79,7 @@ public class Test
         {
             final Cipher c = Cipher.getInstance(ALGORITHM);
             c.init(Cipher.DECRYPT_MODE, key);
-            final byte[] decorVal = new BASE64Decoder().decodeBuffer(encryptedValue);
+            final byte[] decorVal = Base64.decodeBase64(encryptedValue);
             final byte[] decValue = c.doFinal(decorVal);
             decryptedValue = new String(decValue);
         }
@@ -82,8 +93,15 @@ public class Test
 
     private static Key generateKeyFromString(String seed) throws Exception
     {
-        KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
-        generator.init(128, new SecureRandom(seed.getBytes()));
-        return generator.generateKey();
+//        KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
+//        generator.init(128, new SecureRandom(seed.getBytes()));
+//        return generator.generateKey();
+
+        byte[] key = seed.getBytes("UTF-8");
+        MessageDigest sha = MessageDigest.getInstance("SHA-1");
+        key = sha.digest(key);
+        key = Arrays.copyOf(key, 16); // use only first 128 bit
+
+        return new SecretKeySpec(key, ALGORITHM);
     }
 }

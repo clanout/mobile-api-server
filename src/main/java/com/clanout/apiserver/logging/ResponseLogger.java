@@ -17,6 +17,8 @@ public class ResponseLogger implements ContainerResponseFilter
             throws IOException
     {
         String requestId = containerRequestContext.getProperty("request_id").toString();
+        int httpStatus = containerResponseContext.getStatus();
+
         try
         {
             containerRequestContext.hashCode();
@@ -26,32 +28,11 @@ public class ResponseLogger implements ContainerResponseFilter
                 throw new NullPointerException();
             }
 
-            LOG.info("[RESPONSE:" + requestId + "] " + containerResponseContext.getEntity());
+            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + "] " + containerResponseContext.getEntity());
         }
         catch (Exception e)
         {
-            int status = containerResponseContext.getStatus();
-            String body = "HTTP Status = " + status;
-
-            switch (status)
-            {
-                case 200:
-                    body = "SUCCESS";
-                    break;
-                case 400:
-                    body = "BAD REQUEST";
-                    break;
-                case 401:
-                    body = "UNAUTHORIZED";
-                    break;
-                case 403:
-                    body = "FORBIDDEN";
-                    break;
-                case 404:
-                    body = "NOT FOUND";
-                    break;
-            }
-            LOG.info("[RESPONSE:" + requestId + "] " + body);
+            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + "]");
         }
     }
 }

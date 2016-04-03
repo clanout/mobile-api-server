@@ -3,6 +3,9 @@ package com.clanout.apiserver._server;
 import com.clanout.apiserver._core.ClanoutApiServer;
 import com.clanout.apiserver._core.Constants;
 import com.clanout.apiserver._core.ServerContext;
+import com.clanout.application.core.ApplicationContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.CompletionHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -16,6 +19,8 @@ import java.util.concurrent.Executors;
 
 public class Server
 {
+    private static Logger LOG = LogManager.getRootLogger();
+
     public static final String HTTP_SCHEME = "http";
     public static final String HOST = "0.0.0.0";
     private static final int PORT = 8080;
@@ -27,12 +32,13 @@ public class Server
             .port(PORT)
             .build();
 
-    private static final int WORKER_THREAD_POOL_SIZE = 100;
+    private static final int WORKER_THREAD_POOL_SIZE = 10;
+    private static final int BACKGROUND_THREAD_POOL_SIZE = 10;
 
     public static void main(String[] args) throws IOException
     {
         final HttpServer server = startHttpServer();
-        System.out.println("ClanOut API Server started [" + BASE_URI.toString() + "]");
+        LOG.debug("[ClanOut API Server started at " + BASE_URI.toString() + "]");
 
         System.in.read();
         shutdown(server);
@@ -65,7 +71,7 @@ public class Server
                     public void completed(HttpServer httpServer)
                     {
                         ServerContext.destroy();
-                        System.out.println("Clanout API Server stopped");
+                        LOG.debug("[Clanout API Server stopped]");
                     }
 
                     @Override
@@ -77,8 +83,19 @@ public class Server
 
     private static void initServerContext()
     {
-        ExecutorService workerExecutorService = Executors.newFixedThreadPool(WORKER_THREAD_POOL_SIZE);
-        ServerContext.init(workerExecutorService);
+        ExecutorService workerPool = Executors.newFixedThreadPool(WORKER_THREAD_POOL_SIZE);
+        ExecutorService backgroundPool = Executors.newFixedThreadPool(BACKGROUND_THREAD_POOL_SIZE);
+
+        ApplicationContext applicationContext = null;
+        try
+        {
+            applicationContext = new ApplicationContext(backgroundPool);
+        }
+        catch (Exception e)
+        {
+            LOG.fatal("[ApplicationContext initialization failed]", e);
+        }
+        ServerContext.init(applicationContext, workerPool);
     }
 }
 
