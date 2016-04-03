@@ -50,6 +50,10 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable>
                 case 404:
                     error = Error.NOT_FOUND;
                     break;
+
+                case 405:
+                    error = Error.METHOD_NOT_ALLOWED;
+                    break;
             }
 
             return Response

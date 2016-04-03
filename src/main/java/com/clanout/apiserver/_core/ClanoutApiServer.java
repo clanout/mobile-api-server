@@ -4,6 +4,7 @@ package com.clanout.apiserver._core;
 import com.clanout.apiserver.endpoints.AuthEndpoint;
 import com.clanout.apiserver.endpoints.HealthEndpoint;
 import com.clanout.apiserver.endpoints.LocationEndpoint;
+import com.clanout.apiserver.endpoints.MeEndpoint;
 import com.clanout.apiserver.error.handlers.ClanoutExceptionHandler;
 import com.clanout.apiserver.error.handlers.DefaultExceptionHandler;
 import com.clanout.apiserver.logging.RequestLogger;
@@ -42,8 +43,9 @@ public class ClanoutApiServer extends Application
 
         /* Endpoints */
         resources.add(HealthEndpoint.class);
-        resources.add(AuthEndpoint.class);
         resources.add(LocationEndpoint.class);
+        resources.add(AuthEndpoint.class);
+        resources.add(MeEndpoint.class);
 
         return resources;
     }

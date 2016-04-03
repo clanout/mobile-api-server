@@ -6,7 +6,6 @@ import com.clanout.apiserver.request.core.SessionRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Context;
 
 @Path("health_check")
 public class HealthEndpoint extends AbstractEndpoint
@@ -14,7 +13,7 @@ public class HealthEndpoint extends AbstractEndpoint
     @GET
     public void healthCheck(@Suspended AsyncResponse asyncResponse)
     {
-        workers.execute(() -> asyncResponse.resume("Hello, World!"));
+        workerPool.execute(() -> asyncResponse.resume("Hello, World!"));
     }
 
     @GET

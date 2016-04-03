@@ -27,7 +27,7 @@ public class LocationEndpoint extends AbstractEndpoint
     public void getZone(@QueryParam("latitude") String latitudeStr, @QueryParam("longitude") String longitudeStr,
                         @Suspended AsyncResponse asyncResponse)
     {
-        workers.execute(() -> {
+        workerPool.execute(() -> {
 
             double latitude  = 0.0;
             double longitude = 0.0;

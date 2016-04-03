@@ -10,6 +10,7 @@ public enum Error
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 0, "Unauthorized"),
     FORBIDDEN(HttpStatus.FORBIDDEN, 0, "Forbidden"),
     NOT_FOUND(HttpStatus.NOT_FOUND, 0, "Not Found"),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 0, "Method Not Allowed"),
 
     /* Input Processing Errors */
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 666, "Invalid access token"),
@@ -21,6 +22,7 @@ public enum Error
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, 1004, "Invalid refresh token"),
     SESSION_REFRESH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Session refresh failed"),
 
+    INVALID_INPUT_FIELDS(HttpStatus.BAD_REQUEST, 1006, "Invalid input fields")
     ;
 
     @SerializedName("status")

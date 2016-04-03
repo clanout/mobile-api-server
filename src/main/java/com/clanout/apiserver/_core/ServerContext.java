@@ -12,16 +12,16 @@ public class ServerContext
 
     public static ServerContext instance;
 
-    public static void init(ApplicationContext applicationContext, ExecutorService workerExecutorService)
+    public static void init(ApplicationContext applicationContext, ExecutorService workerPool)
     {
-        instance = new ServerContext(applicationContext, workerExecutorService);
+        instance = new ServerContext(applicationContext, workerPool);
         LOG.debug("[ServerContext initialized]");
     }
 
     public static void destroy()
     {
         getInstance().applicationContext.destroy();
-        getInstance().workerExecutorService.shutdownNow();
+        getInstance().workerPool.shutdownNow();
 
         LOG.debug("[ServerContext destroyed]");
     }
@@ -36,18 +36,18 @@ public class ServerContext
         return instance;
     }
 
-    private ExecutorService workerExecutorService;
+    private ExecutorService workerPool;
     private ApplicationContext applicationContext;
 
-    private ServerContext(ApplicationContext applicationContext, ExecutorService workerExecutorService)
+    private ServerContext(ApplicationContext applicationContext, ExecutorService workerPool)
     {
         this.applicationContext = applicationContext;
-        this.workerExecutorService = workerExecutorService;
+        this.workerPool = workerPool;
     }
 
-    public ExecutorService getWorkerExecutorService()
+    public ExecutorService getWorkerPool()
     {
-        return workerExecutorService;
+        return workerPool;
     }
 
     public ApplicationContext getApplicationContext()

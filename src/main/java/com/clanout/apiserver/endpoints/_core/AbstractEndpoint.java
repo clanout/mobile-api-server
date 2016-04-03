@@ -6,22 +6,26 @@ import com.clanout.application.core.ApplicationContext;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 public class AbstractEndpoint
 {
-    protected ExecutorService workers;
+    protected ExecutorService workerPool;
     protected ApplicationContext applicationContext;
 
     public AbstractEndpoint()
     {
-        workers = ServerContext.getInstance().getWorkerExecutorService();
+        workerPool = ServerContext.getInstance().getWorkerPool();
         applicationContext = ServerContext.getInstance().getApplicationContext();
     }
 
     protected Response buildSuccessJsonResponse(Object o)
     {
         return Response.ok(GsonProvider.get().toJson(o), MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
+    protected Response buildEmptySuccessResponse()
+    {
+        return Response.ok().build();
     }
 }

@@ -9,6 +9,7 @@ import com.clanout.application.module.auth.context.AuthContext;
 import com.clanout.application.module.auth.domain.exception.*;
 import com.clanout.application.module.auth.domain.use_case.CreateSession;
 import com.clanout.application.module.auth.domain.use_case.RefreshSession;
+import com.clanout.application.module.user.domain.exception.CreateUserException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,7 +32,7 @@ public class AuthEndpoint extends AbstractEndpoint
     @Path("/token")
     public void createToken(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse)
     {
-        workers.execute(() -> {
+        workerPool.execute(() -> {
 
             try
             {
@@ -70,7 +71,7 @@ public class AuthEndpoint extends AbstractEndpoint
     @Path("/refresh")
     public void refreshToken(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse)
     {
-        workers.execute(() -> {
+        workerPool.execute(() -> {
 
             try
             {
