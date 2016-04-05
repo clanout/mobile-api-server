@@ -21,7 +21,9 @@ public class RequestLogger implements ContainerRequestFilter
     public void filter(ContainerRequestContext containerRequestContext) throws IOException
     {
         String requestId = UUID.randomUUID().toString();
+        long startTime = System.currentTimeMillis();
         containerRequestContext.setProperty("request_id", requestId);
+        containerRequestContext.setProperty("request_start_time", String.valueOf(startTime));
 
         String uri = containerRequestContext.getUriInfo().getPath();
         String method = containerRequestContext.getMethod();

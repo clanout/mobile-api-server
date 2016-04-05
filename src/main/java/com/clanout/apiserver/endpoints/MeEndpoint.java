@@ -1,12 +1,12 @@
 package com.clanout.apiserver.endpoints;
 
 import com.clanout.apiserver.endpoints._core.AbstractEndpoint;
-import com.clanout.apiserver.error.*;
+import com.clanout.apiserver.error.ClanoutException;
 import com.clanout.apiserver.error.Error;
 import com.clanout.apiserver.request.core.SessionRequest;
 import com.clanout.application.core.Module;
+import com.clanout.application.framework.module.InvalidFieldException;
 import com.clanout.application.module.user.context.UserContext;
-import com.clanout.application.module.user.domain.exception.InvalidUserFieldException;
 import com.clanout.application.module.user.domain.use_case.*;
 
 import javax.ws.rs.Consumes;
@@ -45,7 +45,7 @@ public class MeEndpoint extends AbstractEndpoint
 
                 asyncResponse.resume(buildSuccessJsonResponse(response));
             }
-            catch (InvalidUserFieldException e)
+            catch (InvalidFieldException e)
             {
                 asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
             }
@@ -117,7 +117,7 @@ public class MeEndpoint extends AbstractEndpoint
 
                 asyncResponse.resume(buildEmptySuccessResponse());
             }
-            catch (InvalidUserFieldException e)
+            catch (InvalidFieldException e)
             {
                 asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
             }

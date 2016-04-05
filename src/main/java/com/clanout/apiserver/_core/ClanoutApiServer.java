@@ -44,6 +44,7 @@ public class ClanoutApiServer extends Application
         resources.add(AuthEndpoint.class);
         resources.add(MeEndpoint.class);
         resources.add(ImageEndpoint.class);
+        resources.add(PlanEndpoint.class);
 
         return resources;
     }

@@ -31,6 +31,11 @@ public class AbstractEndpoint
         return Response.ok().build();
     }
 
+    protected Response buildNotModifiedResponse()
+    {
+        return Response.notModified().build();
+    }
+
     protected Response redirect(String url)
     {
         try

@@ -17,8 +17,10 @@ public class ResponseLogger implements ContainerResponseFilter
             throws IOException
     {
         String requestId = containerRequestContext.getProperty("request_id").toString();
-        int httpStatus = containerResponseContext.getStatus();
+        long requestStartTime = Long.parseLong(containerRequestContext.getProperty("request_start_time").toString());
+        long timeTaken = System.currentTimeMillis() - requestStartTime;
 
+        int httpStatus = containerResponseContext.getStatus();
         try
         {
             containerRequestContext.hashCode();
@@ -28,11 +30,11 @@ public class ResponseLogger implements ContainerResponseFilter
                 throw new NullPointerException();
             }
 
-            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + "] " + containerResponseContext.getEntity());
+            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + ":" + timeTaken + "ms] " + containerResponseContext.getEntity());
         }
         catch (Exception e)
         {
-            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + "]");
+            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + ":" + timeTaken + "ms]");
         }
     }
 }

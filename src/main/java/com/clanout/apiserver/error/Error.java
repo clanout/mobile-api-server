@@ -24,7 +24,9 @@ public enum Error
 
     INVALID_INPUT_FIELDS(HttpStatus.BAD_REQUEST, 1006, "Invalid input fields"),
 
-    NO_PROFILE_IMAGE(HttpStatus.NOT_FOUND, 1007, "No profile pic")
+    NO_PROFILE_IMAGE(HttpStatus.NOT_FOUND, 1007, "No profile pic"),
+
+    PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, 1008, "Plan not found")
     ;
 
     @SerializedName("status")
