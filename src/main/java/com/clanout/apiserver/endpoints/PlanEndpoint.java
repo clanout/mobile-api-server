@@ -7,11 +7,11 @@ import com.clanout.apiserver.request.core.SessionRequest;
 import com.clanout.application.core.Module;
 import com.clanout.application.framework.module.InvalidFieldException;
 import com.clanout.application.module.plan.context.PlanContext;
+import com.clanout.application.module.plan.domain.exception.DeletePlanPermissionException;
 import com.clanout.application.module.plan.domain.exception.FeedNotFoundException;
 import com.clanout.application.module.plan.domain.exception.PlanNotFoundException;
-import com.clanout.application.module.plan.domain.use_case.CreatePlan;
-import com.clanout.application.module.plan.domain.use_case.FetchFeed;
-import com.clanout.application.module.plan.domain.use_case.FetchPlan;
+import com.clanout.application.module.plan.domain.exception.UpdatePlanPermissionException;
+import com.clanout.application.module.plan.domain.use_case.*;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -159,6 +159,107 @@ public class PlanEndpoint extends AbstractEndpoint
             catch (InvalidFieldException e)
             {
                 asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
+
+    @Path("/edit")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void editPlan(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                OffsetDateTime startTime = null;
+                OffsetDateTime endTime = null;
+                Double latitude = null;
+                Double longitude = null;
+                try
+                {
+                    startTime = OffsetDateTime.parse(apiRequest.get("start_time"));
+                    endTime = OffsetDateTime.parse(apiRequest.get("end_time"));
+                    latitude = Double.parseDouble(apiRequest.get("latitude"));
+                    longitude = Double.parseDouble(apiRequest.get("longitude"));
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                UpdatePlan updatePlan = planContext.updatePlan();
+
+                UpdatePlan.Request request = new UpdatePlan.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+                request.description = apiRequest.get("description");
+                request.startTime = startTime;
+                request.endTime = endTime;
+                request.locationName = apiRequest.get("location_name");
+                request.latitude = latitude;
+                request.longitude = longitude;
+
+                updatePlan.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (PlanNotFoundException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.PLAN_NOT_FOUND));
+            }
+            catch (UpdatePlanPermissionException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.PLAN_EDIT_PERMISSION_DENIED));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
+
+    @Path("/delete")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void deletePlan(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                DeletePlan deletePlan = planContext.deletePlan();
+
+                DeletePlan.Request request = new DeletePlan.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+
+                deletePlan.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (PlanNotFoundException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.PLAN_NOT_FOUND));
+            }
+            catch (DeletePlanPermissionException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.PLAN_DELETE_PERMISSION_DENIED));
             }
             catch (Exception e)
             {
