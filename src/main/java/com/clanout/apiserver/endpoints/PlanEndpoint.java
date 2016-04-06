@@ -268,4 +268,41 @@ public class PlanEndpoint extends AbstractEndpoint
 
         });
     }
+
+    @Path("/rsvp")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void updateRsvp(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                UpdateRsvp updateRsvp = planContext.updateRsvp();
+
+                UpdateRsvp.Request request = new UpdateRsvp.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+                request.rsvp = apiRequest.get("rsvp");
+
+                updateRsvp.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (PlanNotFoundException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.PLAN_NOT_FOUND));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
 }
