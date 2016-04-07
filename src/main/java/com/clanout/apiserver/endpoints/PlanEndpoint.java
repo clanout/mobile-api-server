@@ -405,4 +405,37 @@ public class PlanEndpoint extends AbstractEndpoint
 
         });
     }
+
+    @Path("/invitation-response")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void invitationResponse(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                InvitationResponse invitationResponse = planContext.invitationResponse();
+
+                InvitationResponse.Request request = new InvitationResponse.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+                request.invitationResponse = apiRequest.get("invitation_response");
+
+                invitationResponse.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
 }
