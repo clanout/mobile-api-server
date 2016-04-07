@@ -48,7 +48,7 @@ public class PlanEndpoint extends AbstractEndpoint
                 request.planId = apiRequest.get("plan_id");
                 FetchPlan.Response response = fetchPlan.execute(request);
 
-                asyncResponse.resume(buildSuccessJsonResponse(response.plan));
+                asyncResponse.resume(buildSuccessJsonResponse(response));
             }
             catch (InvalidFieldException e)
             {
@@ -101,9 +101,9 @@ public class PlanEndpoint extends AbstractEndpoint
                     asyncResponse.resume(buildSuccessJsonResponse(response.feed));
                 }
             }
-            catch (FeedNotFoundException e)
+            catch (InvalidFieldException e)
             {
-                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
             }
             catch (Exception e)
             {

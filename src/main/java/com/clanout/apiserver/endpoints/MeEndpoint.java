@@ -148,6 +148,10 @@ public class MeEndpoint extends AbstractEndpoint
 
                 asyncResponse.resume(buildSuccessJsonResponse(response));
             }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
             catch (Exception e)
             {
                 asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
