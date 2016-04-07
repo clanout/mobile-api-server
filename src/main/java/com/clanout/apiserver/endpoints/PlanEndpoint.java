@@ -438,4 +438,58 @@ public class PlanEndpoint extends AbstractEndpoint
 
         });
     }
+
+    @Path("/create-suggestions")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void getCreateSuggestions(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                FetchCreatePlanSuggestions fetchCreatePlanSuggestions = planContext.fetchCreatePlanSuggestions();
+                FetchCreatePlanSuggestions.Response response = fetchCreatePlanSuggestions.execute();
+
+                asyncResponse.resume(buildSuccessJsonResponse(response));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
+
+    @Path("/pending-invitations")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void getPendingInvitations(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                FetchPendingInvitations fetchPendingInvitations = planContext.fetchPendingInvitations();
+
+                FetchPendingInvitations.Request request = new FetchPendingInvitations.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.mobileNumber = apiRequest.get("mobile_number");
+
+                FetchPendingInvitations.Response response = fetchPendingInvitations.execute(request);
+                asyncResponse.resume(buildSuccessJsonResponse(response));
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
 }
