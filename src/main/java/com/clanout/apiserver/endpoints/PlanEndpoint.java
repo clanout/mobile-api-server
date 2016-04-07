@@ -294,14 +294,114 @@ public class PlanEndpoint extends AbstractEndpoint
             {
                 asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
             }
-            catch (PlanNotFoundException e)
+            catch (Exception e)
             {
-                asyncResponse.resume(new ClanoutException(Error.PLAN_NOT_FOUND));
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
+
+    @Path("/status")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void updateStatus(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                boolean isLastMoment = false;
+                try
+                {
+                    isLastMoment = Boolean.parseBoolean(apiRequest.get("is_last_moment"));
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                UpdateStatus updateStatus = planContext.updateStatus();
+
+                UpdateStatus.Request request = new UpdateStatus.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+                request.status = apiRequest.get("status");
+                request.isLastMoment = isLastMoment;
+
+                updateStatus.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
             }
             catch (Exception e)
             {
                 asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
             }
+
+        });
+    }
+
+    @Path("/invite")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void invite(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                Invite invite = planContext.invite();
+
+                Invite.Request request = new Invite.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.planId = apiRequest.get("plan_id");
+                request.invitee = apiRequest.getList("invitee");
+                request.mobileInvitee = apiRequest.getList("invitee_mobile");
+
+                invite.execute(request);
+
+                asyncResponse.resume(buildEmptySuccessResponse());
+            }
+            catch (InvalidFieldException e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INVALID_INPUT_FIELDS));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
+
+    @Path("/chat-update")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void chatUpdate(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                ChatUpdate chatUpdate = planContext.chatUpdate();
+
+                ChatUpdate.Request request = new ChatUpdate.Request();
+                request.planId = apiRequest.get("plan_id");
+                request.message = apiRequest.get("message");
+
+                chatUpdate.execute(request);
+            }
+            catch (Exception ignored)
+            {
+            }
+
+            asyncResponse.resume(buildEmptySuccessResponse());
 
         });
     }

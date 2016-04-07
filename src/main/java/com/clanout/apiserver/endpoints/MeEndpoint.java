@@ -186,4 +186,32 @@ public class MeEndpoint extends AbstractEndpoint
 
         });
     }
+
+    @Path("/registered-contacts")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void getRegisteredContacts(SessionRequest apiRequest, @Suspended AsyncResponse asyncResponse)
+    {
+        workerPool.execute(() -> {
+
+            try
+            {
+                FetchRegisteredContacts fetchRegisteredContacts = userContext.fetchRegisteredContacts();
+
+                FetchRegisteredContacts.Request request = new FetchRegisteredContacts.Request();
+                request.userId = apiRequest.getSessionUser();
+                request.mobileHash = apiRequest.getList("mobile_numbers");
+                request.locationZone = apiRequest.get("location_zone");
+                FetchRegisteredContacts.Response response = fetchRegisteredContacts.execute(request);
+
+                asyncResponse.resume(buildSuccessJsonResponse(response));
+            }
+            catch (Exception e)
+            {
+                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+            }
+
+        });
+    }
 }
