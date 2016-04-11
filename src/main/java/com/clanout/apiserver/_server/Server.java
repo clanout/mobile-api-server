@@ -40,8 +40,14 @@ public class Server
         final HttpServer server = startHttpServer();
         LOG.debug("[ClanOut API Server started at " + BASE_URI.toString() + "]");
 
-        System.in.read();
-        shutdown(server);
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                shutdown(server);
+            }
+        });
     }
 
     public static HttpServer startHttpServer()
@@ -54,31 +60,9 @@ public class Server
 
     public static void shutdown(HttpServer server)
     {
-        server.shutdown().addCompletionHandler(
-                new CompletionHandler<HttpServer>()
-                {
-                    @Override
-                    public void cancelled()
-                    {
-                    }
-
-                    @Override
-                    public void failed(Throwable throwable)
-                    {
-                    }
-
-                    @Override
-                    public void completed(HttpServer httpServer)
-                    {
-                        ServerContext.destroy();
-                        LOG.debug("[Clanout API Server stopped]");
-                    }
-
-                    @Override
-                    public void updated(HttpServer httpServer)
-                    {
-                    }
-                });
+        LOG.debug("[Clanout API Server stopped]");
+        ServerContext.destroy();
+        server.shutdownNow();
     }
 
     private static void initServerContext()
