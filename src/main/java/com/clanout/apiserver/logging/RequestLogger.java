@@ -55,7 +55,10 @@ public class RequestLogger implements ContainerRequestFilter
         }
         else
         {
-            LOG.info(formatLog(requestId, "GET", uri, null));
+            if (!uri.equals("health-check"))
+            {
+                LOG.info(formatLog(requestId, "GET", uri, null));
+            }
         }
     }
 

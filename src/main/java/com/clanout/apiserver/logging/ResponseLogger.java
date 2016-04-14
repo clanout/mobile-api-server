@@ -23,7 +23,9 @@ public class ResponseLogger implements ContainerResponseFilter
         long requestStartTime = Long.parseLong(containerRequestContext.getProperty("request_start_time").toString());
         long timeTaken = System.currentTimeMillis() - requestStartTime;
 
+        String uri = containerRequestContext.getUriInfo().getPath();
         int httpStatus = containerResponseContext.getStatus();
+
         try
         {
             String entity = (String) containerResponseContext.getEntity();
@@ -32,11 +34,17 @@ public class ResponseLogger implements ContainerResponseFilter
                 throw new NullPointerException();
             }
 
-            LOG.info(formatLog(requestId, httpStatus, timeTaken, containerResponseContext.getEntity()));
+            if (!uri.equals("health-check"))
+            {
+                LOG.info(formatLog(requestId, httpStatus, timeTaken, containerResponseContext.getEntity()));
+            }
         }
         catch (Exception e)
         {
-            LOG.info(formatLog(requestId, httpStatus, timeTaken, null));
+            if (!uri.equals("health-check"))
+            {
+                LOG.info(formatLog(requestId, httpStatus, timeTaken, null));
+            }
         }
     }
 
