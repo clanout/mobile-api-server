@@ -4,6 +4,7 @@ import com.clanout.apiserver.endpoints._core.AbstractEndpoint;
 import com.clanout.apiserver.error.*;
 import com.clanout.apiserver.error.Error;
 import com.clanout.application.core.Module;
+import com.clanout.application.framework.module.InvalidFieldException;
 import com.clanout.application.module.location.context.LocationContext;
 import com.clanout.application.module.location.domain.use_case.GetZone;
 
@@ -29,27 +30,35 @@ public class LocationEndpoint extends AbstractEndpoint
     {
         workerPool.execute(() -> {
 
-            double latitude  = 0.0;
-            double longitude = 0.0;
-
             try
             {
-                latitude = Double.parseDouble(latitudeStr);
-                longitude = Double.parseDouble(longitudeStr);
+                double latitude = 0.0;
+                double longitude = 0.0;
+
+                try
+                {
+                    latitude = Double.parseDouble(latitudeStr);
+                    longitude = Double.parseDouble(longitudeStr);
+                }
+                catch (Exception e)
+                {
+                    asyncResponse.resume(new ClanoutException(Error.of(new InvalidFieldException("latitude/longitude"))));
+                }
+
+                GetZone getZone = locationContext.getZone();
+
+                GetZone.Request request = new GetZone.Request();
+                request.latitude = latitude;
+                request.longitude = longitude;
+
+                GetZone.Response response = getZone.execute(request);
+                asyncResponse.resume(buildSuccessJsonResponse(response));
             }
             catch (Exception e)
             {
-                asyncResponse.resume(new ClanoutException(Error.BAD_REQUEST));
+                asyncResponse.resume(new ClanoutException(e));
             }
 
-            GetZone getZone = locationContext.getZone();
-
-            GetZone.Request request = new GetZone.Request();
-            request.latitude = latitude;
-            request.longitude = longitude;
-
-            GetZone.Response response = getZone.execute(request);
-            asyncResponse.resume(buildSuccessJsonResponse(response));
         });
     }
 }

@@ -12,6 +12,9 @@ public class ResponseLogger implements ContainerResponseFilter
 {
     private static Logger LOG = LogManager.getRootLogger();
 
+    private static final String RESPONSE_LOG_FORMAT = "[RESPONSE] %s %d %d >>>> %s";
+    private static final String RESPONSE_LOG_FORMAT_NO_BODY = "[RESPONSE] %s %d %d";
+
     @Override
     public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext)
             throws IOException
@@ -23,18 +26,29 @@ public class ResponseLogger implements ContainerResponseFilter
         int httpStatus = containerResponseContext.getStatus();
         try
         {
-            containerRequestContext.hashCode();
             String entity = (String) containerResponseContext.getEntity();
             if (entity == null || entity.isEmpty())
             {
                 throw new NullPointerException();
             }
 
-            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + ":" + timeTaken + "ms] " + containerResponseContext.getEntity());
+            LOG.info(formatLog(requestId, httpStatus, timeTaken, containerResponseContext.getEntity()));
         }
         catch (Exception e)
         {
-            LOG.info("[RESPONSE:" + httpStatus + ":" + requestId + ":" + timeTaken + "ms]");
+            LOG.info(formatLog(requestId, httpStatus, timeTaken, null));
+        }
+    }
+
+    private String formatLog(String requestId, int httpStatus, long timeTaken, Object body)
+    {
+        if (body == null)
+        {
+            return String.format(RESPONSE_LOG_FORMAT_NO_BODY, requestId, httpStatus, timeTaken);
+        }
+        else
+        {
+            return String.format(RESPONSE_LOG_FORMAT, requestId, httpStatus, timeTaken, body);
         }
     }
 }

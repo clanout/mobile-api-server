@@ -48,11 +48,11 @@ public class NotificationEndpoint extends AbstractEndpoint
             }
             catch (InvalidFieldException e)
             {
-                asyncResponse.resume(new ClanoutException(com.clanout.apiserver.error.Error.INVALID_INPUT_FIELDS));
+                asyncResponse.resume(new ClanoutException(Error.of(e)));
             }
             catch (Exception e)
             {
-                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+                asyncResponse.resume(new ClanoutException(e));
             }
 
         });

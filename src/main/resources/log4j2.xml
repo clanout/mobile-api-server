@@ -4,14 +4,20 @@
     <Appenders>
 
         <Console name="StdOut" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} (%t) %m%n"/>
+            <PatternLayout pattern="%d{ISO8601}{GMT+0} (%t) %m%n"/>
         </Console>
+
+        <Flume name="flume" type="Avro" compress="false">
+            <Agent host="52.200.50.1" port="4141"/>
+            <PatternLayout pattern="%d{ISO8601}{GMT+0} %m"/>
+        </Flume>
 
     </Appenders>
 
     <Loggers>
         <Root level="ALL">
             <AppenderRef ref="StdOut" level="DEBUG"/>
+            <AppenderRef ref="flume" level="INFO"/>
         </Root>
     </Loggers>
 

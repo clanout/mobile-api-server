@@ -1,35 +1,43 @@
 package com.clanout.apiserver.error;
 
+import com.clanout.application.framework.module.InvalidFieldException;
 import com.google.gson.annotations.SerializedName;
 
-public enum Error
+public class Error
 {
     /* Default HTTP Errors */
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 0, "Internal Server Error"),
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, 0, "Bad Request"),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 0, "Unauthorized"),
-    FORBIDDEN(HttpStatus.FORBIDDEN, 0, "Forbidden"),
-    NOT_FOUND(HttpStatus.NOT_FOUND, 0, "Not Found"),
-    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 0, "Method Not Allowed"),
+    public static final Error INTERNAL_SERVER_ERROR = new Error(HttpStatus.INTERNAL_SERVER_ERROR, 0, "Internal Server Error");
+    public static final Error BAD_REQUEST = new Error(HttpStatus.BAD_REQUEST, 0, "Bad Request");
+    public static final Error UNAUTHORIZED = new Error(HttpStatus.UNAUTHORIZED, 0, "Unauthorized");
+    public static final Error FORBIDDEN = new Error(HttpStatus.FORBIDDEN, 0, "Forbidden");
+    public static final Error NOT_FOUND = new Error(HttpStatus.NOT_FOUND, 0, "Not Found");
+    public static final Error METHOD_NOT_ALLOWED = new Error(HttpStatus.METHOD_NOT_ALLOWED, 0, "Method Not Allowed");
 
     /* Input Processing Errors */
-    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 666, "Invalid access token"),
-    MALFORMED_JSON(HttpStatus.BAD_REQUEST, 1000, "Malformed input"),
+    public static final Error INVALID_ACCESS_TOKEN = new Error(HttpStatus.UNAUTHORIZED, 1001, "Invalid access token");
+    public static final Error MALFORMED_JSON = new Error(HttpStatus.BAD_REQUEST, 1002, "Malformed input");
 
-    INVALID_AUTH_TOKEN(HttpStatus.BAD_REQUEST, 1001, "Invalid auth token"),
-    INVALID_AUTH_METHOD(HttpStatus.BAD_REQUEST, 1002, "Invalid auth method"),
-    SESSION_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 1003, "Session creation failed"),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, 1004, "Invalid refresh token"),
-    SESSION_REFRESH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Session refresh failed"),
+    public static Error of(InvalidFieldException e)
+    {
+        String message = "Invalid " + e.getFieldName();
+        return new Error(HttpStatus.BAD_REQUEST, 1003, message);
+    }
 
-    INVALID_INPUT_FIELDS(HttpStatus.BAD_REQUEST, 1006, "Invalid input fields"),
+    /* Auth Errors */
+    public static final Error INVALID_AUTH_TOKEN = new Error(HttpStatus.BAD_REQUEST, 2001, "Invalid auth token");
+    public static final Error INVALID_AUTH_METHOD = new Error(HttpStatus.BAD_REQUEST, 2002, "Invalid auth method");
+    public static final Error SESSION_CREATION_FAILED = new Error(HttpStatus.INTERNAL_SERVER_ERROR, 2003, "Session creation failed");
+    public static final Error INVALID_REFRESH_TOKEN = new Error(HttpStatus.BAD_REQUEST, 2004, "Invalid refresh token");
+    public static final Error SESSION_REFRESH_FAILED = new Error(HttpStatus.INTERNAL_SERVER_ERROR, 2005, "Session refresh failed");
 
-    NO_PROFILE_IMAGE(HttpStatus.NOT_FOUND, 1007, "No profile pic"),
+    /* User Errors */
+    public static final Error NO_PROFILE_IMAGE = new Error(HttpStatus.NOT_FOUND, 3001, "No profile pic");
 
-    PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, 1008, "Plan not found"),
-    PLAN_EDIT_PERMISSION_DENIED(HttpStatus.FORBIDDEN, 1009, "Only attendees can edit plans"),
-    PLAN_DELETE_PERMISSION_DENIED(HttpStatus.FORBIDDEN, 1010, "Only the creator can delete the plan")
-    ;
+    /* Plan Errors */
+    public static final Error PLAN_NOT_FOUND = new Error(HttpStatus.NOT_FOUND, 4001, "Plan not found");
+    public static final Error PLAN_EDIT_PERMISSION_DENIED = new Error(HttpStatus.FORBIDDEN, 4002, "Only attendees can edit plans");
+    public static final Error PLAN_DELETE_PERMISSION_DENIED = new Error(HttpStatus.FORBIDDEN, 4003, "Only the creator can delete the plan");
+
 
     @SerializedName("status")
     private int httpStatus;
@@ -40,7 +48,7 @@ public enum Error
     @SerializedName("message")
     private String message;
 
-    Error(int httpStatus, int code, String message)
+    private Error(int httpStatus, int code, String message)
     {
         this.httpStatus = httpStatus;
         this.code = code;

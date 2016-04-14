@@ -72,7 +72,7 @@ public class ImageEndpoint extends AbstractEndpoint
             }
             catch (Exception e)
             {
-                asyncResponse.resume(new ClanoutException(Error.INTERNAL_SERVER_ERROR));
+                asyncResponse.resume(new ClanoutException(e));
             }
 
         });
