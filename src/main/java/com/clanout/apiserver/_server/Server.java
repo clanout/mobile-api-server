@@ -4,10 +4,15 @@ import com.clanout.apiserver._core.ClanoutApiServer;
 import com.clanout.apiserver._core.Constants;
 import com.clanout.apiserver._core.ServerContext;
 import com.clanout.application.core.ApplicationContext;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.CompletionHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.strategies.SameThreadIOStrategy;
+import org.glassfish.grizzly.strategies.WorkerThreadIOStrategy;
+import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -16,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class Server
 {
@@ -32,12 +38,23 @@ public class Server
             .port(PORT)
             .build();
 
-    private static final int WORKER_THREAD_POOL_SIZE = 10;
-    private static final int BACKGROUND_THREAD_POOL_SIZE = 10;
-
     public static void main(String[] args) throws IOException
     {
+
         final HttpServer server = startHttpServer();
+
+        TCPNIOTransport transport = server.getListeners().iterator().next().getTransport();
+        transport.setIOStrategy(WorkerThreadIOStrategy.getInstance());
+
+        ThreadPoolConfig ioThreadPoolConfig = transport.getWorkerThreadPoolConfig();
+        processHttpIoThreadPoolConfig(ioThreadPoolConfig);
+
+        LOG.debug("[Server ThreadPool Config: name=" + ioThreadPoolConfig.getPoolName() +
+                          "; core_size=" + ioThreadPoolConfig.getCorePoolSize() +
+                          "; max_size=" + ioThreadPoolConfig.getMaxPoolSize() + "]");
+
+        server.start();
+
         LOG.debug("[ClanOut API Server started at " + BASE_URI.toString() + "]");
 
         Runtime.getRuntime().addShutdownHook(new Thread()
@@ -55,7 +72,7 @@ public class Server
         initServerContext();
         final ClanoutApiServer clanoutApiServer = new ClanoutApiServer();
         final ResourceConfig resourceConfig = ResourceConfig.forApplication(clanoutApiServer);
-        return GrizzlyHttpServerFactory.createHttpServer(BASE_URI, resourceConfig);
+        return GrizzlyHttpServerFactory.createHttpServer(BASE_URI, resourceConfig, false);
     }
 
     public static void shutdown(HttpServer server)
@@ -67,8 +84,8 @@ public class Server
 
     private static void initServerContext()
     {
-        ExecutorService workerPool = Executors.newFixedThreadPool(WORKER_THREAD_POOL_SIZE);
-        ExecutorService backgroundPool = Executors.newFixedThreadPool(BACKGROUND_THREAD_POOL_SIZE);
+        ExecutorService workerPool = getWorkerThreadPool();
+        ExecutorService backgroundPool = getBackgroundThreadPool();
 
         ApplicationContext applicationContext = null;
         try
@@ -80,6 +97,44 @@ public class Server
             LOG.fatal("[ApplicationContext initialization failed]", e);
         }
         ServerContext.init(applicationContext, workerPool);
+    }
+
+    private static void processHttpIoThreadPoolConfig(ThreadPoolConfig threadPoolConfig)
+    {
+        String THREAD_NAME_FORMAT = "http-io-%d";
+        int IO_THREAD_POOL_SIZE = 10;
+        int IO_THREAD_POOL_MAX_SIZE = 25;
+
+        ThreadFactory httpThreadFactory = new ThreadFactoryBuilder()
+                .setNameFormat(THREAD_NAME_FORMAT)
+                .build();
+
+        threadPoolConfig.setPoolName("http-io");
+        threadPoolConfig.setThreadFactory(httpThreadFactory);
+        threadPoolConfig.setCorePoolSize(IO_THREAD_POOL_SIZE);
+        threadPoolConfig.setMaxPoolSize(IO_THREAD_POOL_MAX_SIZE);
+    }
+
+    private static ExecutorService getWorkerThreadPool()
+    {
+        String THREAD_NAME_FORMAT = "worker-thread-%d";
+        int WORKER_THREAD_POOL_SIZE = 100;
+
+        ThreadFactory workerThreadFactory = new ThreadFactoryBuilder()
+                .setNameFormat(THREAD_NAME_FORMAT)
+                .build();
+        return Executors.newFixedThreadPool(WORKER_THREAD_POOL_SIZE, workerThreadFactory);
+    }
+
+    private static ExecutorService getBackgroundThreadPool()
+    {
+        String THREAD_NAME_FORMAT = "background-thread-%d";
+        int BACKGROUND_THREAD_POOL_SIZE = 20;
+
+        ThreadFactory backgroundThreadFactory = new ThreadFactoryBuilder()
+                .setNameFormat(THREAD_NAME_FORMAT)
+                .build();
+        return Executors.newFixedThreadPool(BACKGROUND_THREAD_POOL_SIZE, backgroundThreadFactory);
     }
 }
 
