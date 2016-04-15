@@ -118,7 +118,7 @@ public class Server
     private static ExecutorService getWorkerThreadPool()
     {
         String THREAD_NAME_FORMAT = "worker-thread-%d";
-        int WORKER_THREAD_POOL_SIZE = 100;
+        int WORKER_THREAD_POOL_SIZE = 50;
 
         ThreadFactory workerThreadFactory = new ThreadFactoryBuilder()
                 .setNameFormat(THREAD_NAME_FORMAT)
