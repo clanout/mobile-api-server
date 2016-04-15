@@ -131,6 +131,13 @@ public class PlanEndpoint extends AbstractEndpoint
                 {
                     startTime = OffsetDateTime.parse(apiRequest.get("start_time"));
                     endTime = OffsetDateTime.parse(apiRequest.get("end_time"));
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                try
+                {
                     latitude = Double.parseDouble(apiRequest.get("latitude"));
                     longitude = Double.parseDouble(apiRequest.get("longitude"));
                 }
@@ -186,6 +193,13 @@ public class PlanEndpoint extends AbstractEndpoint
                 {
                     startTime = OffsetDateTime.parse(apiRequest.get("start_time"));
                     endTime = OffsetDateTime.parse(apiRequest.get("end_time"));
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                try
+                {
                     latitude = Double.parseDouble(apiRequest.get("latitude"));
                     longitude = Double.parseDouble(apiRequest.get("longitude"));
                 }
