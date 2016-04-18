@@ -17,7 +17,7 @@
     <Loggers>
         <Root level="ALL">
             <AppenderRef ref="StdOut" level="DEBUG"/>
-            <!--<AppenderRef ref="flume" level="INFO"/>-->
+            <AppenderRef ref="flume" level="INFO"/>
         </Root>
     </Loggers>
 
