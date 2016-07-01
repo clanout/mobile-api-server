@@ -8,7 +8,7 @@
         </Console>
 
         <Flume name="flume" type="Avro" compress="false">
-            <Agent host="ip-10-0-0-111.ec2.internal" port="4141"/>
+            <Agent host="ip-10-0-0-179.ec2.internal" port="4141"/>
             <PatternLayout pattern="%d{ISO8601}{GMT+0} %m"/>
         </Flume>
 
